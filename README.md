@@ -30,7 +30,7 @@ ecommerce-faker-data-generator/
     ├── __init__.py
     ├── load_config.py
     ├── create_objects.py
-    └──create_tables.py
+    └── create_tables.py
 
 ```
 

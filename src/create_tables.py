@@ -51,31 +51,6 @@ def create_tables():
         )
         """,
         """
-        CREATE TABLE IF NOT EXISTS orders (
-            order_id SERIAL PRIMARY KEY,
-            order_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            seller_id INT NOT NULL,
-            status VARCHAR(20) NOT NULL,  -- e.g., 'pending', 'shipped'
-            total_amount DECIMAL(12,2) NOT NULL,
-            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-            FOREIGN KEY (seller_id) REFERENCES seller(seller_id) ON DELETE SET NULL ON UPDATE CASCADE
-        )
-        """,
-        """
-        CREATE TABLE IF NOT EXISTS order_item (
-            order_item_id SERIAL PRIMARY KEY,
-            order_id INT NOT NULL,
-            product_id INT NOT NULL,
-            quantity INTEGER NOT NULL,
-            unit_price DECIMAL(12,2) NOT NULL,
-            subtotal_price DECIMAL(12,2) NOT NULL,
-
-            FOREIGN KEY (order_id) REFERENCES orders(order_id),
-            FOREIGN KEY (product_id) REFERENCES product(product_id)
-        )
-        """,
-        """
         CREATE TABLE IF NOT EXISTS promotions (
             promotion_id SERIAL PRIMARY KEY,
             promotion_name VARCHAR(100) NOT NULL,
@@ -96,7 +71,33 @@ def create_tables():
             FOREIGN KEY (promotion_id) REFERENCES promotions(promotion_id),
             FOREIGN KEY (product_id) REFERENCES product(product_id)
         )
+        """,
         """
+        CREATE TABLE IF NOT EXISTS orders (
+            order_id SERIAL PRIMARY KEY,
+            order_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            seller_id INT NOT NULL,
+            status VARCHAR(20) NOT NULL CHECK (status IN ('PLACED', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED')),
+            total_amount DECIMAL(12,2) NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (seller_id) REFERENCES seller(seller_id)
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS order_item (
+            order_item_id BIGSERIAL PRIMARY KEY,
+            order_id INT NOT NULL,
+            product_id INT NOT NULL,
+            order_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            quantity INTEGER NOT NULL,
+            unit_price NUMERIC(10,2) NOT NULL,
+            subtotal NUMERIC(12,2) NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+            FOREIGN KEY (order_id) REFERENCES orders(order_id),
+            FOREIGN KEY (product_id) REFERENCES product(product_id)
+        )"""
     )
     try:
         config = load_config()
